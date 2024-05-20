@@ -13,34 +13,39 @@ $itens = [];
 $total_vendas = 0;
 
 function registrar(){
-    global $usuarios;
+    global $usuarios, $log;
     limpar_tela();
     $nome_usuario = readline("Digite o nome de usuário: ");
     $senha_usuario = readline("Digite uma senha: ");
     $usuarios[$nome_usuario] = $senha_usuario;
+    $log[] = date('d/m/Y H:i:s') . " - Usuário " . $nome_usuario ." registrado com sucesso!";
     echo "Usuário " . $nome_usuario ." registrado com sucesso!\n";
     sleep(2);
 }
 
 function login(){
+    global $usuarios, $log;
     limpar_tela();
-    global $usuarios;
     echo "LOGIN\n";
     $nome_usuario = readline("Nome de usuário: ");
     $senha_usuario = readline("Senha: ");
     
     if (isset($usuarios[$nome_usuario]) && $usuarios[$nome_usuario] == $senha_usuario) {
         $_SESSION['nome_usuario'] = $nome_usuario;
+        $log[] = date('d/m/Y H:i:s') . " - Usuário " . $nome_usuario . " fez login.";
         return true;
     } else {
+        $log[] = date('d/m/Y H:i:s') . " - Falha no login para o usuário " . $nome_usuario . ".";
         return false;
     } 
 }
 
 function logout(){
-    global $total_vendas;
+    global $log, $total_vendas;
 
     $total_vendas = 0;
+
+    $log[] = date('d/m/Y H:i:s') . " - Usuário " . $_SESSION['nome_usuario'] . " fez logout.";
     
     limpar_tela();
     session_unset();
@@ -51,6 +56,7 @@ function logout(){
 function limpar_tela(){
     system('clear');
 }
+
 function visualizar_log(){
     global $log;
     limpar_tela();
@@ -63,7 +69,7 @@ function visualizar_log(){
 }
 
 function adicionar_item(){
-    global $itens;
+    global $itens, $log;
     limpar_tela();
     echo "Nome do Item: ";
     $nome_item = readline();
@@ -74,7 +80,9 @@ function adicionar_item(){
         'nome' => $nome_item,
         'preco' => $preco_item,
     ];
+    $log[] = date('d/m/Y H:i:s') . " - Item " . $nome_item . " adicionado com sucesso!";
     echo "Item " . $nome_item . " adicionado com sucesso!\n";
+    sleep(2);
 }
 
 function realizar_venda() {
@@ -86,7 +94,7 @@ function realizar_venda() {
         readline("Pressione Enter para continuar...");
         adicionar_item();
     } 
-    
+
     echo "--------------------------\n";
     echo "Itens disponíveis:\n";
     foreach ($itens as $item) {
@@ -100,6 +108,7 @@ function realizar_venda() {
     foreach ($itens as $key => $item) {
         if ($item['nome'] == $item_escolhido) {
             $total_vendas += $item['preco'];
+            $log[] = date('d/m/Y H:i:s') . " - Venda realizada: " . $item['nome'] . " - R$ " . $item['preco'];
             unset($itens[$key]);
             $item_encontrado = true;
             break;
@@ -111,10 +120,8 @@ function realizar_venda() {
     } else {
         echo "Item não encontrado, tente novamente!\n";
     }
-    $log[] = "Venda realizada em tal hora!";
     sleep(2);
 }
-
 
 function menu(){
     global $total_vendas;
